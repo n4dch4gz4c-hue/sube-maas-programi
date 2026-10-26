@@ -1,20 +1,20 @@
 [
   {
-    "tarih": "2026-10-26",
-    "sube": "Bağdat Caddesi",
-    "aciklama": "Elektrik faturası",
-    "tutar": 3450,
-    "vade": "2026-11-10",
-    "durum": 0,
-    "icerik": "BEDAŞ Elektrik Faturası\nDönem: Eylül 2026\nTüketim: 420 kWh\nBirim fiyat: 8,21 TL\nToplam: 3.450 TL\nSon ödeme: 10.11.2026\n\nÖdeme yapılmadı."
-  },
-  {
     "tarih": "2026-10-25",
-    "sube": "Kadıköy",
-    "aciklama": "Malzeme alımı",
-    "tutar": 1280,
+    "sube": "Bağdat Caddesi",
+    "aciklama": "TRENDYOL İADE FATURASI",
+    "tutar": 578.18,
     "vade": "",
     "durum": 0,
-    "icerik": "Metro Toptancı\nFatura No: 2026/4521\nKalemler:\n- Ekmek 20 kg\n- Peynir 5 kg\n- Yağ 10 L\nToplam: 1.280 TL"
+    "faturaNo": "KZL2026000000209",
+    "musteri": "TYG TURKEY ELEKTRONİK TİCARET HİZMETLERİ VE YATIRIMLARI A.Ş.",
+    "musteriAdres": "MASLAK MAHALLESİ AHİ EVREN CADDESİ NO:42 SARIYER/İSTANBUL",
+    "senaryo": "TİCARİFATURA",
+    "tip": "İSTİSNA",
+    "kdv": 0,
+    "kalemler": [
+      {"aciklama": "TRENDYOL İADE FATURASI", "miktar": "1 Adet", "birim": 578.18, "kdvOran": "0", "kdvTutar": 0, "tutar": 578.18}
+    ],
+    "not": "Vergi İstisna Muafiyet Sebebi: 350 - Diğerleri\nYalnız: Beş Yüz Yetmiş Sekiz Türk Lirası On Sekiz Kuruş"
   }
 ]
