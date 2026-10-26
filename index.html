@@ -46,7 +46,7 @@ th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase
 .net{color:var(--success);font-weight:700}
 .section{display:none}
 .section.active{display:block}
-#sube.section.active,#liste.section.active,#ozet.section.active,#fatura.section.active,#personel.section.active,#dashboard.section.active{display:block!important}
+#subeYonetimi.section.active,#liste.section.active,#ozet.section.active,#fatura.section.active,#personel.section.active,#dashboard.section.active{display:block!important}
 .filter-bar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
 .filter-bar select{width:auto;min-width:200px}
 @media(max-width:900px){
@@ -64,7 +64,7 @@ th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase
 <h2>Maaş</h2>
 <a href="#" class="active" onclick="goster('dashboard');return false"><span>Dashboard</span></a>
 <a href="#" onclick="goster('personel');return false"><span>Personel Ekle</span></a>
-<a href="#" onclick="goster('sube');return false"><span>Şube Yönetimi</span></a>
+<a href="#" onclick="goster('subeYonetimi');return false"><span>Şube Yönetimi</span></a>
 <a href="#" onclick="goster('liste');return false"><span>Personel Listesi</span></a>
 <a href="#" onclick="goster('ozet');return false"><span>Şube Özeti</span></a>
 <a href="#" onclick="goster('fatura');return false"><span>Faturalar</span></a>
@@ -115,7 +115,7 @@ th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase
 </div>
 </div>
 
-<div id="sube" class="section">
+<div id="subeYonetimi" class="section">
 <div class="card">
 <h3>Şube Yönetimi</h3>
 <p style="color:var(--muted);margin-top:0">Mevcut şubeler aşağıda listelenir. Yeni şube ekleyebilir veya boş şubeyi silebilirsin.</p>
@@ -225,7 +225,7 @@ function goster(id){
   document.getElementById(id).classList.add("active");
   if(event && event.target) event.target.classList.add("active");
   if(id==="dashboard") dashCiz();
-  if(id==="sube") subeListesiCiz();
+  if(id==="subeYonetimi") subeListesiCiz();
   if(id==="liste") filtreSubeDoldur();
   if(id==="fatura") faturaCiz();
 }
