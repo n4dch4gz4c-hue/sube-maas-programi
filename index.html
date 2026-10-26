@@ -93,7 +93,11 @@ th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase
 <div style="margin-top:16px;font-size:13px;color:var(--muted)">Şubeler: <span id="dashSubeNames"></span></div>
 </div>
 <div class="card">
-<h3>Şube Maliyetleri</h3>
+<h3>Uyarılar</h3>
+<div id="dashUyarilar" style="display:flex;gap:12px;flex-wrap:wrap"></div>
+</div>
+<div class="card">
+<h3>Şube Maliyet Sıralaması <span style="font-size:12px;color:#64748b;font-weight:400">(yüksekten düşüğe)</span></h3>
 <div id="dashSube"></div>
 </div>
 </div>
@@ -324,12 +328,13 @@ function netHesap(p){
 }
 
 function dashCiz(){
-  let toplamNet = 0, toplamBrut = 0, odenen = 0;
+  let toplamNet = 0, toplamBrut = 0, odenen = 0, mesaiYuksek = 0;
   personel.forEach(p => {
     const n = netHesap(p);
     toplamNet += n;
     toplamBrut += p.brut;
     if(p.odendi) odenen++;
+    if((p.mesai||0) > 20) mesaiYuksek++;
   });
   document.getElementById("dashStats").innerHTML = `
     <div class="stat"><div class="num">${personel.length}</div><div class="label">Toplam Personel</div></div>
@@ -338,16 +343,31 @@ function dashCiz(){
     <div class="stat"><div class="num">${toplamNet.toLocaleString()} ₺</div><div class="label">Toplam Net</div></div>
     <div class="stat"><div class="num">${odenen}/${personel.length}</div><div class="label">Ödenen</div></div>
   `;
-  let html = "<table><thead><tr><th>Şube</th><th>Kişi</th><th>Net Toplam</th></tr></thead><tbody>";
+  // Warnings
+  const faturalar = JSON.parse(localStorage.getItem("faturalar") || "[]");
+  const bugun = new Date().toISOString().slice(0,10);
+  const gecikmis = faturalar.filter(f => f.vade && f.vade < bugun && f.durum==0).length;
+  const tedarikciSay = (JSON.parse(localStorage.getItem("tedarikciler") || "[]")).length;
+  let uyari = "";
+  if(gecikmis) uyari += `<div class="stat" style="background:#fef2f2;border-color:#fecaca"><div class="num" style="color:#dc2626">${gecikmis}</div><div class="label">Gecikmiş Fatura</div></div>`;
+  if(mesaiYuksek) uyari += `<div class="stat" style="background:#fffbeb;border-color:#fde68a"><div class="num" style="color:#d97706">${mesaiYuksek}</div><div class="label">Yüksek Mesai</div></div>`;
+  uyari += `<div class="stat"><div class="num">${tedarikciSay}</div><div class="label">Tedarikçi</div></div>`;
+  document.getElementById("dashUyarilar").innerHTML = uyari || "<span style='color:#64748b'>Uyarı yok</span>";
+
+  // Branch ranking
   const st = {};
   personel.forEach(p => {
     if(!st[p.sube]) st[p.sube] = {adet:0, net:0};
     st[p.sube].adet++;
     st[p.sube].net += netHesap(p);
   });
-  subeler.forEach(s => {
-    const t = st[s] || {adet:0, net:0};
-    html += `<tr><td>${s}</td><td>${t.adet}</td><td class="net">${t.net.toLocaleString()} ₺</td></tr>`;
+  const sorted = Object.entries(st).sort((a,b) => b[1].net - a[1].net);
+  let html = "<table><thead><tr><th>#</th><th>Şube</th><th>Kişi</th><th>Net Toplam</th></tr></thead><tbody>";
+  sorted.forEach(([s,t],i) => {
+    html += `<tr><td>${i+1}</td><td>${s}</td><td>${t.adet}</td><td class="net">${t.net.toLocaleString()} ₺</td></tr>`;
+  });
+  subeler.filter(s => !st[s]).forEach(s => {
+    html += `<tr><td>-</td><td>${s}</td><td>0</td><td class="net">0 ₺</td></tr>`;
   });
   html += "</tbody></table>";
   document.getElementById("dashSube").innerHTML = html;
