@@ -3,45 +3,60 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Şube Maaş Programı - Taslak</title>
+<title>Şube Maaş Programı</title>
 <style>
-body{font-family:system-ui;margin:20px;background:#f8fafc;color:#1e293b}
-header{background:#0f172a;color:#fff;padding:16px;border-radius:12px;margin-bottom:20px}
-h1{margin:0;font-size:22px}
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:8px;text-align:left;border-bottom:1px solid #e2e8f0}
-th{background:#f1f5f9}
-button{background:#3b82f6;color:#fff;border:0;padding:8px 14px;border-radius:8px;cursor:pointer}
+body{font-family:system-ui;margin:20px;background:#f1f5f9;color:#0f172a}
+header{background:#0f172a;color:#fff;padding:20px;border-radius:12px;margin-bottom:20px}
+h1{margin:0;font-size:24px}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+input,select{padding:10px;border:1px solid #cbd5e1;border-radius:8px;width:100%;box-sizing:border-box;font-size:14px}
+button{background:#3b82f6;color:#fff;border:0;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600}
 button:hover{background:#2563eb}
-input,select{padding:8px;border:1px solid #cbd5e1;border-radius:8px;width:100%;box-sizing:border-box}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:600px){.grid{grid-template-columns:1fr}}
+button.danger{background:#ef4444}
+button.danger:hover{background:#dc2626}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #e2e8f0}
+th{background:#f8fafc;font-weight:600}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;background:#e0f2fe;color:#0369a1}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
-<h1>Şube Personel Maaş Programı (Taslak)</h1>
-<p style="margin:4px 0 0;opacity:.8">Basit personel kartı + aylık hesap + şube özeti</p>
+<h1>Şube Personel Maaş Programı</h1>
+<p style="margin:6px 0 0;opacity:.85">Profesyonel hesap: çalışılan gün, fazla mesai, prim/bahşiş, avans, net maaş</p>
 </header>
 
 <div class="card">
-<h3>Personel Ekle</h3>
+<h3>Personel Ekle / Güncelle</h3>
 <div class="grid">
 <input id="ad" placeholder="Ad Soyad">
-<input id="poz" placeholder="Pozisyon (Garson, Aşçı...)">
-<select id="sube"><option>Merkez</option><option>Kadıköy</option><option>Bostancı</option></select>
-<input id="brut" type="number" placeholder="Brüt Maaş">
+<input id="poz" placeholder="Pozisyon">
+<select id="sube">
+<option>Merkez</option><option>Kadıköy</option><option>Bostancı</option><option>Şişli</option><option>Ataşehir</option>
+</select>
+<input id="brut" type="number" placeholder="Brüt Maaş (₺)">
+<input id="gun" type="number" value="30" placeholder="Çalışılan Gün">
+<input id="mesai" type="number" value="0" placeholder="Fazla Mesai Saat">
+<input id="prim" type="number" value="0" placeholder="Prim / Bahşiş (₺)">
+<input id="avans" type="number" value="0" placeholder="Avans (₺)">
 </div>
-<button onclick="ekle()" style="margin-top:10px">Ekle</button>
+<button onclick="ekle()" style="margin-top:12px">Kaydet</button>
 </div>
 
 <div class="card">
 <h3>Personel Listesi</h3>
+<div style="overflow-x:auto">
 <table id="tablo">
-<thead><tr><th>Ad</th><th>Pozisyon</th><th>Şube</th><th>Brüt</th><th>Net (örnek)</th></tr></thead>
+<thead>
+<tr>
+<th>Ad</th><th>Pozisyon</th><th>Şube</th><th>Brüt</th><th>Gün</th><th>Mesai</th><th>Prim</th><th>Avans</th><th>Net</th><th></th>
+</tr>
+</thead>
 <tbody></tbody>
 </table>
+</div>
 </div>
 
 <div class="card">
@@ -50,39 +65,57 @@ input,select{padding:8px;border:1px solid #cbd5e1;border-radius:8px;width:100%;b
 </div>
 
 <script>
-let personel = [
-  {ad:"Ahmet Yılmaz", poz:"Garson", sube:"Kadıköy", brut:45000},
-  {ad:"Ayşe Demir", poz:"Aşçı", sube:"Merkez", brut:55000},
-  {ad:"Mehmet Kaya", poz:"Kasiyer", sube:"Bostancı", brut:42000}
+let personel = JSON.parse(localStorage.getItem("personel") || "null") || [
+  {id:1, ad:"Ahmet Yılmaz", poz:"Garson", sube:"Kadıköy", brut:45000, gun:30, mesai:8, prim:2500, avans:0},
+  {id:2, ad:"Ayşe Demir", poz:"Aşçı", sube:"Merkez", brut:55000, gun:28, mesai:12, prim:1500, avans:3000},
+  {id:3, ad:"Mehmet Kaya", poz:"Kasiyer", sube:"Bostancı", brut:42000, gun:30, mesai:0, prim:0, avans:0}
 ];
+let nextId = personel.length ? Math.max(...personel.map(p=>p.id))+1 : 1;
 
-function netHesap(brut){
-  // Basit örnek: SGK 14% + işsizlik 1% + ortalama GV + damga
-  const sgk = brut * 0.14;
-  const issizlik = brut * 0.01;
-  const gv = Math.max(0, (brut - sgk - issizlik - 28075) * 0.15);
-  const damga = brut * 0.00759;
-  return Math.round(brut - sgk - issizlik - gv - damga);
+function netHesap(p){
+  const gunOran = Math.min(p.gun,30)/30;
+  const brut = p.brut * gunOran;
+  const mesaiUcret = (p.brut / 225) * p.mesai * 1.5; // saatlik * 1.5
+  const toplamHakedis = brut + mesaiUcret + (p.prim||0);
+  const sgk = toplamHakedis * 0.14;
+  const issizlik = toplamHakedis * 0.01;
+  const matrah = toplamHakedis - sgk - issizlik;
+  const gv = Math.max(0, (matrah - 28075.5) * 0.15);
+  const damga = toplamHakedis * 0.00759;
+  const net = toplamHakedis - sgk - issizlik - gv - damga - (p.avans||0);
+  return Math.round(net);
 }
 
 function ciz(){
+  localStorage.setItem("personel", JSON.stringify(personel));
   const tb = document.querySelector("#tablo tbody");
   tb.innerHTML = "";
   const subeToplam = {};
   personel.forEach(p => {
-    const net = netHesap(p.brut);
-    tb.innerHTML += `<tr><td>${p.ad}</td><td>${p.poz}</td><td>${p.sube}</td><td>${p.brut.toLocaleString()} ₺</td><td>${net.toLocaleString()} ₺</td></tr>`;
+    const net = netHesap(p);
+    tb.innerHTML += `<tr>
+      <td>${p.ad}</td>
+      <td>${p.poz}</td>
+      <td><span class="badge">${p.sube}</span></td>
+      <td>${p.brut.toLocaleString()} ₺</td>
+      <td>${p.gun}</td>
+      <td>${p.mesai} sa</td>
+      <td>${(p.prim||0).toLocaleString()} ₺</td>
+      <td>${(p.avans||0).toLocaleString()} ₺</td>
+      <td><strong>${net.toLocaleString()} ₺</strong></td>
+      <td><button class="danger" onclick="sil(${p.id})">Sil</button></td>
+    </tr>`;
     if(!subeToplam[p.sube]) subeToplam[p.sube] = {brut:0, net:0, adet:0};
     subeToplam[p.sube].brut += p.brut;
     subeToplam[p.sube].net += net;
     subeToplam[p.sube].adet++;
   });
-  let oz = "<table><tr><th>Şube</th><th>Kişi</th><th>Toplam Brüt</th><th>Toplam Net</th></tr>";
+  let oz = "<table><thead><tr><th>Şube</th><th>Kişi</th><th>Toplam Brüt</th><th>Toplam Net</th></tr></thead><tbody>";
   for(const s in subeToplam){
     const t = subeToplam[s];
-    oz += `<tr><td>${s}</td><td>${t.adet}</td><td>${t.brut.toLocaleString()} ₺</td><td>${t.net.toLocaleString()} ₺</td></tr>`;
+    oz += `<tr><td>${s}</td><td>${t.adet}</td><td>${t.brut.toLocaleString()} ₺</td><td><strong>${t.net.toLocaleString()} ₺</strong></td></tr>`;
   }
-  oz += "</table>";
+  oz += "</tbody></table>";
   document.getElementById("ozet").innerHTML = oz;
 }
 
@@ -91,12 +124,25 @@ function ekle(){
   const poz = document.getElementById("poz").value.trim();
   const sube = document.getElementById("sube").value;
   const brut = Number(document.getElementById("brut").value);
-  if(!ad || !brut) return alert("Ad ve brüt gir");
-  personel.push({ad, poz, sube, brut});
+  const gun = Number(document.getElementById("gun").value) || 30;
+  const mesai = Number(document.getElementById("mesai").value) || 0;
+  const prim = Number(document.getElementById("prim").value) || 0;
+  const avans = Number(document.getElementById("avans").value) || 0;
+  if(!ad || !brut) return alert("Ad ve brüt maaş zorunlu");
+  personel.push({id:nextId++, ad, poz, sube, brut, gun, mesai, prim, avans});
   ciz();
-  document.getElementById("ad").value = "";
-  document.getElementById("poz").value = "";
-  document.getElementById("brut").value = "";
+  ["ad","poz","brut"].forEach(id => document.getElementById(id).value="");
+  document.getElementById("gun").value = 30;
+  document.getElementById("mesai").value = 0;
+  document.getElementById("prim").value = 0;
+  document.getElementById("avans").value = 0;
+}
+
+function sil(id){
+  if(confirm("Silinsin mi?")){
+    personel = personel.filter(p => p.id !== id);
+    ciz();
+  }
 }
 
 ciz();
