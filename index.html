@@ -127,7 +127,12 @@ let subeler = JSON.parse(localStorage.getItem("subeler") || "null") || ["Bağdat
 let personel = JSON.parse(localStorage.getItem("personel") || "null") || [
   {id:1, ad:"Ahmet Yılmaz", poz:"Garson", sube:"Kadıköy", giris:"2024-03-15", brut:45000, gun:30, mesai:8, prim:2500, avans:0, kesinti:0, odendi:1},
   {id:2, ad:"Ayşe Demir", poz:"Aşçı", sube:"Bağdat Caddesi", giris:"2023-11-01", brut:55000, gun:28, mesai:12, prim:1500, avans:3000, kesinti:500, odendi:0},
-  {id:3, ad:"Mehmet Kaya", poz:"Kasiyer", sube:"Taksim Büfe", giris:"2025-01-10", brut:42000, gun:30, mesai:0, prim:0, avans:0, kesinti:0, odendi:1}
+  {id:3, ad:"Mehmet Kaya", poz:"Kasiyer", sube:"Taksim Büfe", giris:"2025-01-10", brut:42000, gun:30, mesai:0, prim:0, avans:0, kesinti:0, odendi:1},
+  {id:4, ad:"Fatma Öztürk", poz:"Garson", sube:"Çengelköy", giris:"2024-07-20", brut:43000, gun:30, mesai:4, prim:1800, avans:1000, kesinti:0, odendi:1},
+  {id:5, ad:"Ali Can", poz:"Aşçı Yardımcısı", sube:"Talsim Pide", giris:"2024-05-05", brut:38000, gun:26, mesai:6, prim:800, avans:0, kesinti:200, odendi:0},
+  {id:6, ad:"Zeynep Aksoy", poz:"Kasiyer", sube:"Bağdat Caddesi", giris:"2025-02-14", brut:40000, gun:30, mesai:0, prim:500, avans:0, kesinti:0, odendi:1},
+  {id:7, ad:"Hasan Yıldız", poz:"Garson", sube:"Taksim Büfe", giris:"2023-09-01", brut:44000, gun:30, mesai:10, prim:3000, avans:2000, kesinti:0, odendi:0},
+  {id:8, ad:"Elif Şahin", poz:"Aşçı", sube:"Kadıköy", giris:"2024-01-12", brut:52000, gun:29, mesai:5, prim:1200, avans:0, kesinti:0, odendi:1}
 ];
 let nextId = personel.length ? Math.max(...personel.map(p=>p.id))+1 : 1;
 let duzenleId = null;
