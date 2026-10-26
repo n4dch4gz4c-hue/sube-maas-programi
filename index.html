@@ -184,20 +184,10 @@ th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase
 
 <script>
 const varsayilanSubeler = ["Bağdat Caddesi", "Kadıköy", "Çengelköy", "Talsim Pide", "Taksim Büfe"];
-// Eski bozuk kayıt varsa temizle
-try {
-  const raw = localStorage.getItem("subeler");
-  if (raw) {
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed) || parsed.length === 0 || parsed.every(x => typeof x !== "string")) {
-      localStorage.removeItem("subeler");
-    }
-  }
-} catch(e) { localStorage.removeItem("subeler"); }
-let subeler = JSON.parse(localStorage.getItem("subeler") || "null") || [];
-varsayilanSubeler.forEach(s => { if (!subeler.includes(s)) subeler.push(s); });
-if (subeler.length < 3) subeler = varsayilanSubeler.slice();
+localStorage.removeItem("subeler"); // zorla temizle
+let subeler = varsayilanSubeler.slice();
 localStorage.setItem("subeler", JSON.stringify(subeler));
+console.log("Şubeler yüklendi:", subeler);
 
 let personel = JSON.parse(localStorage.getItem("personel") || "null") || [
   {id:1, ad:"Ahmet Yılmaz", poz:"Garson", sube:"Kadıköy", giris:"2024-03-15", brut:45000, gun:30, mesai:8, prim:2500, avans:0, kesinti:0, odendi:1},
@@ -253,11 +243,13 @@ function filtreSubeDoldur(){
 
 function subeListesiCiz(){
   const el = document.getElementById("subeListesi");
-  if(!subeler.length){
-    el.innerHTML = '<span style="color:var(--muted)">Henüz şube yok. Yukarıdan ekle.</span>';
+  if(!el){ console.log("subeListesi elementi yok"); return; }
+  if(!subeler || !subeler.length){
+    el.innerHTML = '<span style="color:#f87171">Şube listesi boş (localStorage temizlendi, yenile).</span>';
     return;
   }
-  el.innerHTML = subeler.map(s => `<div class="sube-item">${s} <button class="danger" style="padding:2px 6px;font-size:11px" onclick="subeSil('${s}')">×</button></div>`).join("");
+  el.innerHTML = '<div style="margin-bottom:8px;color:#60a5fa;font-size:13px">' + subeler.length + ' şube yüklendi</div>' +
+    subeler.map(s => `<div class="sube-item">${s} <button class="danger" style="padding:2px 6px;font-size:11px" onclick="subeSil('${s}')">×</button></div>`).join("");
 }
 
 function subeEkle(){
