@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Şube Maaş Programı - Taslak</title>
+<style>
+body{font-family:system-ui;margin:20px;background:#f8fafc;color:#1e293b}
+header{background:#0f172a;color:#fff;padding:16px;border-radius:12px;margin-bottom:20px}
+h1{margin:0;font-size:22px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;text-align:left;border-bottom:1px solid #e2e8f0}
+th{background:#f1f5f9}
+button{background:#3b82f6;color:#fff;border:0;padding:8px 14px;border-radius:8px;cursor:pointer}
+button:hover{background:#2563eb}
+input,select{padding:8px;border:1px solid #cbd5e1;border-radius:8px;width:100%;box-sizing:border-box}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>Şube Personel Maaş Programı (Taslak)</h1>
+<p style="margin:4px 0 0;opacity:.8">Basit personel kartı + aylık hesap + şube özeti</p>
+</header>
+
+<div class="card">
+<h3>Personel Ekle</h3>
+<div class="grid">
+<input id="ad" placeholder="Ad Soyad">
+<input id="poz" placeholder="Pozisyon (Garson, Aşçı...)">
+<select id="sube"><option>Merkez</option><option>Kadıköy</option><option>Bostancı</option></select>
+<input id="brut" type="number" placeholder="Brüt Maaş">
+</div>
+<button onclick="ekle()" style="margin-top:10px">Ekle</button>
+</div>
+
+<div class="card">
+<h3>Personel Listesi</h3>
+<table id="tablo">
+<thead><tr><th>Ad</th><th>Pozisyon</th><th>Şube</th><th>Brüt</th><th>Net (örnek)</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<div class="card">
+<h3>Şube Özeti</h3>
+<div id="ozet"></div>
+</div>
+
+<script>
+let personel = [
+  {ad:"Ahmet Yılmaz", poz:"Garson", sube:"Kadıköy", brut:45000},
+  {ad:"Ayşe Demir", poz:"Aşçı", sube:"Merkez", brut:55000},
+  {ad:"Mehmet Kaya", poz:"Kasiyer", sube:"Bostancı", brut:42000}
+];
+
+function netHesap(brut){
+  // Basit örnek: SGK 14% + işsizlik 1% + ortalama GV + damga
+  const sgk = brut * 0.14;
+  const issizlik = brut * 0.01;
+  const gv = Math.max(0, (brut - sgk - issizlik - 28075) * 0.15);
+  const damga = brut * 0.00759;
+  return Math.round(brut - sgk - issizlik - gv - damga);
+}
+
+function ciz(){
+  const tb = document.querySelector("#tablo tbody");
+  tb.innerHTML = "";
+  const subeToplam = {};
+  personel.forEach(p => {
+    const net = netHesap(p.brut);
+    tb.innerHTML += `<tr><td>${p.ad}</td><td>${p.poz}</td><td>${p.sube}</td><td>${p.brut.toLocaleString()} ₺</td><td>${net.toLocaleString()} ₺</td></tr>`;
+    if(!subeToplam[p.sube]) subeToplam[p.sube] = {brut:0, net:0, adet:0};
+    subeToplam[p.sube].brut += p.brut;
+    subeToplam[p.sube].net += net;
+    subeToplam[p.sube].adet++;
+  });
+  let oz = "<table><tr><th>Şube</th><th>Kişi</th><th>Toplam Brüt</th><th>Toplam Net</th></tr>";
+  for(const s in subeToplam){
+    const t = subeToplam[s];
+    oz += `<tr><td>${s}</td><td>${t.adet}</td><td>${t.brut.toLocaleString()} ₺</td><td>${t.net.toLocaleString()} ₺</td></tr>`;
+  }
+  oz += "</table>";
+  document.getElementById("ozet").innerHTML = oz;
+}
+
+function ekle(){
+  const ad = document.getElementById("ad").value.trim();
+  const poz = document.getElementById("poz").value.trim();
+  const sube = document.getElementById("sube").value;
+  const brut = Number(document.getElementById("brut").value);
+  if(!ad || !brut) return alert("Ad ve brüt gir");
+  personel.push({ad, poz, sube, brut});
+  ciz();
+  document.getElementById("ad").value = "";
+  document.getElementById("poz").value = "";
+  document.getElementById("brut").value = "";
+}
+
+ciz();
+</script>
+</body>
+</html>
