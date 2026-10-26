@@ -180,9 +180,19 @@ th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase
 
 <script>
 const varsayilanSubeler = ["Bağdat Caddesi", "Kadıköy", "Çengelköy", "Talsim Pide", "Taksim Büfe"];
+// Eski bozuk kayıt varsa temizle
+try {
+  const raw = localStorage.getItem("subeler");
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0 || parsed.every(x => typeof x !== "string")) {
+      localStorage.removeItem("subeler");
+    }
+  }
+} catch(e) { localStorage.removeItem("subeler"); }
 let subeler = JSON.parse(localStorage.getItem("subeler") || "null") || [];
-varsayilanSubeler.forEach(s => { if(!subeler.includes(s)) subeler.push(s); });
-if(!subeler.length) subeler = varsayilanSubeler.slice();
+varsayilanSubeler.forEach(s => { if (!subeler.includes(s)) subeler.push(s); });
+if (subeler.length < 3) subeler = varsayilanSubeler.slice();
 localStorage.setItem("subeler", JSON.stringify(subeler));
 
 let personel = JSON.parse(localStorage.getItem("personel") || "null") || [
@@ -543,6 +553,11 @@ subeSelectDoldur();
 filtreSubeDoldur();
 subeListesiCiz();
 ciz();
+setTimeout(function(){
+  subeSelectDoldur();
+  filtreSubeDoldur();
+  subeListesiCiz();
+}, 300);
 </script>
 </body>
 </html>
