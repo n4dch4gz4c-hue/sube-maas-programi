@@ -88,16 +88,21 @@ th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase
 
 <div id="dashboard" class="section active">
 <div class="card">
-<h3>Genel Özet</h3>
+<h3>Labor Dashboard <span style="font-size:12px;color:#64748b;font-weight:400">— tüm şubeler</span></h3>
 <div class="grid" id="dashStats"></div>
-<div style="margin-top:16px;font-size:13px;color:var(--muted)">Şubeler: <span id="dashSubeNames"></span></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div class="card">
+<h3>Top 5 Şube (maliyet)</h3>
+<div id="dashTop"></div>
 </div>
 <div class="card">
 <h3>Uyarılar</h3>
-<div id="dashUyarilar" style="display:flex;gap:12px;flex-wrap:wrap"></div>
+<div id="dashUyarilar"></div>
+</div>
 </div>
 <div class="card">
-<h3>Şube Maliyet Sıralaması <span style="font-size:12px;color:#64748b;font-weight:400">(yüksekten düşüğe)</span></h3>
+<h3>Şube Karşılaştırma</h3>
 <div id="dashSube"></div>
 </div>
 </div>
@@ -766,6 +771,57 @@ goster = function(id){
 
 // init
 tedarikciCiz();
+
+function dashCiz(){
+  let toplamNet = 0, toplamBrut = 0, odenen = 0, mesaiYuksek = 0;
+  personel.forEach(p => {
+    const n = netHesap(p);
+    toplamNet += n;
+    toplamBrut += p.brut || 0;
+    if(p.odendi) odenen++;
+    if((p.mesai||0) > 15) mesaiYuksek++;
+  });
+  document.getElementById("dashStats").innerHTML = `
+    <div class="stat"><div class="num">${personel.length}</div><div class="label">Personel</div></div>
+    <div class="stat"><div class="num">${subeler.length}</div><div class="label">Şube</div></div>
+    <div class="stat"><div class="num">${toplamNet.toLocaleString()} ₺</div><div class="label">Toplam Net</div></div>
+    <div class="stat"><div class="num">${odenen}</div><div class="label">Ödenen</div></div>
+  `;
+
+  const faturalar = JSON.parse(localStorage.getItem("faturalar") || "[]");
+  const bugun = new Date().toISOString().slice(0,10);
+  const gecikmis = faturalar.filter(f => f.vade && f.vade < bugun && f.durum==0).length;
+  let uyari = "";
+  if(gecikmis) uyari += `<div style="padding:10px;background:#fef2f2;border-radius:8px;margin-bottom:8px;color:#dc2626;font-weight:600">${gecikmis} gecikmiş fatura</div>`;
+  if(mesaiYuksek) uyari += `<div style="padding:10px;background:#fffbeb;border-radius:8px;margin-bottom:8px;color:#d97706;font-weight:600">${mesaiYuksek} kişi yüksek mesai</div>`;
+  if(!uyari) uyari = `<div style="color:#64748b">Uyarı yok</div>`;
+  document.getElementById("dashUyarilar").innerHTML = uyari;
+
+  const st = {};
+  personel.forEach(p => {
+    if(!st[p.sube]) st[p.sube] = {adet:0, net:0, mesai:0};
+    st[p.sube].adet++;
+    st[p.sube].net += netHesap(p);
+    st[p.sube].mesai += (p.mesai||0);
+  });
+  const sorted = Object.entries(st).sort((a,b) => b[1].net - a[1].net);
+
+  // Top 5
+  let top = "";
+  sorted.slice(0,5).forEach(([s,t],i) => {
+    const bar = Math.min(100, Math.round(t.net / (sorted[0][1].net||1) * 100));
+    top += `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${i+1}. ${s}</span><b>${t.net.toLocaleString()} ₺</b></div><div style="height:6px;background:#e2e8f0;border-radius:3px;margin-top:4px"><div style="height:100%;width:${bar}%;background:#0f766e;border-radius:3px"></div></div></div>`;
+  });
+  document.getElementById("dashTop").innerHTML = top || "<span style='color:#64748b'>Veri yok</span>";
+
+  // Full comparison
+  let html = "<table><thead><tr><th>#</th><th>Şube</th><th>Kişi</th><th>Mesai</th><th>Net</th></tr></thead><tbody>";
+  sorted.forEach(([s,t],i) => {
+    html += `<tr><td>${i+1}</td><td>${s}</td><td>${t.adet}</td><td>${t.mesai}</td><td class="net">${t.net.toLocaleString()} ₺</td></tr>`;
+  });
+  html += "</tbody></table>";
+  document.getElementById("dashSube").innerHTML = html;
+}
 </script>
 </body>
 </html>
