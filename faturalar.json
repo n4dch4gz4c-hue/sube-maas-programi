@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "tarih": "2026-10-26",
+    "sube": "Bağdat Caddesi",
+    "aciklama": "Elektrik faturası - örnek",
+    "tutar": 3450,
+    "vade": "2026-11-10",
+    "durum": 0
+  },
+  {
+    "tarih": "2026-10-25",
+    "sube": "Kadıköy",
+    "aciklama": "Malzeme alımı - örnek",
+    "tutar": 1280,
+    "vade": "",
+    "durum": 0
+  }
+]
