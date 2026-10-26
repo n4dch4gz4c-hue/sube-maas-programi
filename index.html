@@ -556,15 +556,59 @@ function faturaCiz(){
       <td><button class="danger" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation();faturaSil(${f.id})">Sil</button></td>
     </tr>`;
     if(acik){
-      html += `<tr><td colspan="7" style="background:#0f172a;padding:16px">
-        <div style="font-size:15px;font-weight:600;margin-bottom:8px">${f.aciklama||"Fatura"}</div>
-        <div style="color:#94a3b8;font-size:13px;line-height:1.6">
-          <b>Şube:</b> ${f.sube}<br>
-          <b>Tarih:</b> ${f.tarih||"-"} · <b>Vade:</b> ${f.vade||"-"}<br>
-          <b>Tutar:</b> <span class="net">${f.tutar.toLocaleString()} ₺</span><br>
-          <b>Durum:</b> ${f.durum?"Ödendi":"Ödenmedi"}<br>
-          ${f.icerik ? "<br><b>İçerik:</b><br>" + f.icerik.replace(/\n/g,"<br>") : ""}
-          ${f.mailUrl ? '<br><br><a href="'+f.mailUrl+'" target="_blank" style="color:#60a5fa">Maili Gmail\'de aç</a>' : ""}
+      const kalemler = f.kalemler || [{aciklama:f.aciklama||"-", miktar:"1", birim:f.tutar, kdvOran:"0", kdvTutar:0, tutar:f.tutar}];
+      const kRows = kalemler.map((k,i)=>`<tr>
+        <td>${i+1}</td>
+        <td>${k.aciklama}</td>
+        <td>${k.miktar||1}</td>
+        <td>${(k.birim||0).toLocaleString("tr-TR")} TL</td>
+        <td>%${k.kdvOran||0}</td>
+        <td>${(k.kdvTutar||0).toLocaleString("tr-TR")} TL</td>
+        <td>${(k.tutar||0).toLocaleString("tr-TR")} TL</td>
+      </tr>`).join("");
+      html += `<tr><td colspan="7" style="padding:0">
+        <div style="background:#fff;color:#111;padding:20px;margin:8px;border-radius:8px;font-size:13px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #111;padding-bottom:12px;margin-bottom:12px">
+            <div>
+              <div style="font-weight:700;font-size:15px">KIZILKAYALAR HAMBURGER GIDA İNŞAAT TURİZM SANAYİ TİCARET LİMİTED ŞİRKETİ</div>
+              <div style="font-size:11px;color:#444;margin-top:4px">ŞAŞKINBAKKAL BAĞDAT CADDESİ NOTER SOKAK NO:21 KADIKÖY/İSTANBUL<br>Tel: (212) 534 75 71 · VKN: 5610251743</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-weight:700;font-size:16px">E-Fatura</div>
+              <div style="font-size:12px;margin-top:4px">${f.faturaNo||""}</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px">
+            <div>
+              <div style="font-weight:600;font-size:11px;color:#666">SAYIN</div>
+              <div>${f.musteri||"-"}</div>
+              <div style="font-size:11px;color:#444">${f.musteriAdres||""}</div>
+            </div>
+            <div style="font-size:12px">
+              <div><b>Fatura No:</b> ${f.faturaNo||"-"}</div>
+              <div><b>Fatura Tarihi:</b> ${f.tarih||"-"}</div>
+              <div><b>Senaryo:</b> ${f.senaryo||"TİCARİFATURA"}</div>
+              <div><b>Tip:</b> ${f.tip||"-"}</div>
+            </div>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px">
+            <thead><tr style="background:#f1f5f9">
+              <th style="border:1px solid #ddd;padding:6px;text-align:left">Sıra</th>
+              <th style="border:1px solid #ddd;padding:6px;text-align:left">Malzeme/Hizmet</th>
+              <th style="border:1px solid #ddd;padding:6px">Miktar</th>
+              <th style="border:1px solid #ddd;padding:6px">Birim Fiyat</th>
+              <th style="border:1px solid #ddd;padding:6px">KDV</th>
+              <th style="border:1px solid #ddd;padding:6px">KDV Tutarı</th>
+              <th style="border:1px solid #ddd;padding:6px">Tutar</th>
+            </tr></thead>
+            <tbody>${kRows}</tbody>
+          </table>
+          <div style="text-align:right;font-size:12px">
+            <div>Mal Hizmet Toplam: <b>${f.tutar.toLocaleString("tr-TR")} TL</b></div>
+            <div>Hesaplanan KDV: <b>${(f.kdv||0).toLocaleString("tr-TR")} TL</b></div>
+            <div style="font-size:14px;margin-top:4px">Ödenecek Tutar: <b>${f.tutar.toLocaleString("tr-TR")} TL</b></div>
+          </div>
+          ${f.not ? `<div style="margin-top:12px;font-size:11px;color:#444">${f.not}</div>` : ""}
         </div>
       </td></tr>`;
     }
