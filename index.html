@@ -36,8 +36,8 @@ th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase
 .badge{padding:4px 10px;border-radius:20px;font-size:12px;background:#1e40af;color:#bfdbfe}
 .badge.yes{background:#065f46;color:#6ee7b7}
 .badge.no{background:#7f1d1d;color:#fca5a5}
-.sube-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.sube-item{background:#0f172a;border:1px solid var(--border);padding:6px 12px;border-radius:20px;font-size:13px;display:flex;align-items:center;gap:6px}
+.sube-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;min-height:40px}
+.sube-item{background:#0f172a;border:1px solid var(--border);padding:8px 14px;border-radius:20px;font-size:13px;display:flex;align-items:center;gap:8px}
 .net{color:var(--success);font-weight:700}
 .section{display:none}
 .section.active{display:block}
@@ -94,7 +94,8 @@ th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase
 <div id="sube" class="section">
 <div class="card">
 <h3>Şube Yönetimi</h3>
-<div style="display:flex;gap:10px;align-items:center">
+<p style="color:var(--muted);margin-top:0">Mevcut şubeler aşağıda listelenir. Yeni şube ekleyebilir veya boş şubeyi silebilirsin.</p>
+<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px">
 <input id="yeniSube" placeholder="Yeni şube adı" style="max-width:240px">
 <button class="secondary" onclick="subeEkle()">+ Şube Ekle</button>
 </div>
@@ -123,7 +124,10 @@ th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase
 </div>
 
 <script>
-let subeler = JSON.parse(localStorage.getItem("subeler") || "null") || ["Bağdat Caddesi", "Kadıköy", "Çengelköy", "Talsim Pide", "Taksim Büfe"];
+const varsayilanSubeler = ["Bağdat Caddesi", "Kadıköy", "Çengelköy", "Talsim Pide", "Taksim Büfe"];
+let subeler = JSON.parse(localStorage.getItem("subeler") || "null") || varsayilanSubeler;
+if(!subeler.length) subeler = varsayilanSubeler.slice();
+
 let personel = JSON.parse(localStorage.getItem("personel") || "null") || [
   {id:1, ad:"Ahmet Yılmaz", poz:"Garson", sube:"Kadıköy", giris:"2024-03-15", brut:45000, gun:30, mesai:8, prim:2500, avans:0, kesinti:0, odendi:1},
   {id:2, ad:"Ayşe Demir", poz:"Aşçı", sube:"Bağdat Caddesi", giris:"2023-11-01", brut:55000, gun:28, mesai:12, prim:1500, avans:3000, kesinti:500, odendi:0},
@@ -143,6 +147,7 @@ function goster(id){
   document.getElementById(id).classList.add("active");
   event.target.classList.add("active");
   if(id==="dashboard") dashCiz();
+  if(id==="sube") subeListesiCiz();
 }
 
 function subeSelectDoldur(){
@@ -150,12 +155,18 @@ function subeSelectDoldur(){
 }
 
 function subeListesiCiz(){
-  document.getElementById("subeListesi").innerHTML = subeler.map(s => `<div class="sube-item">${s} <button class="danger" style="padding:2px 6px;font-size:11px" onclick="subeSil('${s}')">×</button></div>`).join("");
+  const el = document.getElementById("subeListesi");
+  if(!subeler.length){
+    el.innerHTML = '<span style="color:var(--muted)">Henüz şube yok. Yukarıdan ekle.</span>';
+    return;
+  }
+  el.innerHTML = subeler.map(s => `<div class="sube-item">${s} <button class="danger" style="padding:2px 6px;font-size:11px" onclick="subeSil('${s}')">×</button></div>`).join("");
 }
 
 function subeEkle(){
   const ad = document.getElementById("yeniSube").value.trim();
-  if(!ad || subeler.includes(ad)) return;
+  if(!ad) return alert("Şube adı gir");
+  if(subeler.includes(ad)) return alert("Bu şube zaten var");
   subeler.push(ad);
   localStorage.setItem("subeler", JSON.stringify(subeler));
   document.getElementById("yeniSube").value = "";
@@ -166,8 +177,8 @@ function subeEkle(){
 }
 
 function subeSil(ad){
-  if(personel.some(p => p.sube === ad)) return alert("Personel var");
-  if(confirm(ad + " silinsin mi?")){
+  if(personel.some(p => p.sube === ad)) return alert("Bu şubede personel var, önce personeli taşı veya sil");
+  if(confirm(ad + " şubesini sil?")){
     subeler = subeler.filter(s => s !== ad);
     localStorage.setItem("subeler", JSON.stringify(subeler));
     subeSelectDoldur();
@@ -223,6 +234,7 @@ function dashCiz(){
 
 function ciz(){
   localStorage.setItem("personel", JSON.stringify(personel));
+  localStorage.setItem("subeler", JSON.stringify(subeler));
   const tb = document.querySelector("#tablo tbody");
   tb.innerHTML = "";
   const subeToplam = {};
