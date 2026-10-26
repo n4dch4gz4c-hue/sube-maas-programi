@@ -533,6 +533,11 @@ function faturaKaydet(){
   ["fAciklama","fTutar","fVade"].forEach(id => document.getElementById(id).value="");
 }
 
+let acikFaturaId = null;
+function faturaDetay(id){
+  acikFaturaId = acikFaturaId === id ? null : id;
+  faturaCiz();
+}
 function faturaCiz(){
   faturaSelectDoldur();
   const filtre = document.getElementById("fFiltre")?.value || "";
@@ -540,15 +545,30 @@ function faturaCiz(){
   const tb = document.querySelector("#faturaTablo tbody");
   tb.innerHTML = list.map(f => {
     const dur = f.durum ? '<span class="badge yes">Ödendi</span>' : '<span class="badge no">Ödenmedi</span>';
-    return `<tr>
+    const acik = acikFaturaId === f.id;
+    let html = `<tr style="cursor:pointer" onclick="faturaDetay(${f.id})">
       <td>${f.tarih||"-"}</td>
       <td><span class="badge">${f.sube}</span></td>
       <td>${f.aciklama||"-"}</td>
       <td class="net">${f.tutar.toLocaleString()} ₺</td>
       <td>${f.vade||"-"}</td>
-      <td>${dur} <button class="secondary" style="padding:4px 8px;font-size:11px" onclick="faturaToggle(${f.id})">${f.durum?"İptal":"Ödendi"}</button></td>
-      <td><button class="danger" style="padding:6px 10px;font-size:12px" onclick="faturaSil(${f.id})">Sil</button></td>
+      <td>${dur} <button class="secondary" style="padding:4px 8px;font-size:11px" onclick="event.stopPropagation();faturaToggle(${f.id})">${f.durum?"İptal":"Ödendi"}</button></td>
+      <td><button class="danger" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation();faturaSil(${f.id})">Sil</button></td>
     </tr>`;
+    if(acik){
+      html += `<tr><td colspan="7" style="background:#0f172a;padding:16px">
+        <div style="font-size:15px;font-weight:600;margin-bottom:8px">${f.aciklama||"Fatura"}</div>
+        <div style="color:#94a3b8;font-size:13px;line-height:1.6">
+          <b>Şube:</b> ${f.sube}<br>
+          <b>Tarih:</b> ${f.tarih||"-"} · <b>Vade:</b> ${f.vade||"-"}<br>
+          <b>Tutar:</b> <span class="net">${f.tutar.toLocaleString()} ₺</span><br>
+          <b>Durum:</b> ${f.durum?"Ödendi":"Ödenmedi"}<br>
+          ${f.icerik ? "<br><b>İçerik:</b><br>" + f.icerik.replace(/\n/g,"<br>") : ""}
+          ${f.mailUrl ? '<br><br><a href="'+f.mailUrl+'" target="_blank" style="color:#60a5fa">Maili Gmail\'de aç</a>' : ""}
+        </div>
+      </td></tr>`;
+    }
+    return html;
   }).join("") || `<tr><td colspan="7">Kayıt yok</td></tr>`;
 }
 
