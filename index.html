@@ -43,6 +43,8 @@ th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase
 .net{color:var(--success);font-weight:700}
 .section{display:none}
 .section.active{display:block}
+.filter-bar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.filter-bar select{width:auto;min-width:200px}
 @media(max-width:800px){.sidebar{width:60px}.sidebar h2,.sidebar a span{display:none}.main{margin-left:60px}}
 </style>
 </head>
@@ -115,6 +117,10 @@ th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase
 <div id="liste" class="section">
 <div class="card">
 <h3>Personel Listesi <button class="success" onclick="excel()" style="float:right;padding:8px 14px;font-size:13px">Excel İndir</button></h3>
+<div class="filter-bar">
+<label style="color:var(--muted);font-weight:600">Şube Seç:</label>
+<select id="filtreSube" onchange="ciz()"></select>
+</div>
 <div style="overflow-x:auto">
 <table id="tablo">
 <thead><tr><th>Ad</th><th>Pozisyon</th><th>Şube</th><th>Giriş</th><th>Brüt</th><th>Gün</th><th>Mesai</th><th>Prim</th><th>Avans</th><th>Kesinti</th><th>Net</th><th>Ödeme</th><th></th></tr></thead>
@@ -150,7 +156,6 @@ let personel = JSON.parse(localStorage.getItem("personel") || "null") || [
 let nextId = personel.length ? Math.max(...personel.map(p=>p.id))+1 : 1;
 let duzenleId = null;
 
-// Yıl seçici doldur
 const yilSel = document.getElementById("yil");
 const buYil = new Date().getFullYear();
 for(let y = buYil-2; y <= buYil+1; y++){
@@ -165,10 +170,18 @@ function goster(id){
   event.target.classList.add("active");
   if(id==="dashboard") dashCiz();
   if(id==="sube") subeListesiCiz();
+  if(id==="liste") filtreSubeDoldur();
 }
 
 function subeSelectDoldur(){
   document.getElementById("sube").innerHTML = subeler.map(s => `<option>${s}</option>`).join("");
+}
+
+function filtreSubeDoldur(){
+  const sel = document.getElementById("filtreSube");
+  const mevcut = sel.value;
+  sel.innerHTML = `<option value="">Tüm Şubeler</option>` + subeler.map(s => `<option>${s}</option>`).join("");
+  if(mevcut && [...sel.options].some(o => o.value === mevcut)) sel.value = mevcut;
 }
 
 function subeListesiCiz(){
@@ -188,6 +201,7 @@ function subeEkle(){
   localStorage.setItem("subeler", JSON.stringify(subeler));
   document.getElementById("yeniSube").value = "";
   subeSelectDoldur();
+  filtreSubeDoldur();
   subeListesiCiz();
   ciz();
   dashCiz();
@@ -199,6 +213,7 @@ function subeSil(ad){
     subeler = subeler.filter(s => s !== ad);
     localStorage.setItem("subeler", JSON.stringify(subeler));
     subeSelectDoldur();
+    filtreSubeDoldur();
     subeListesiCiz();
     ciz();
     dashCiz();
@@ -252,10 +267,12 @@ function dashCiz(){
 function ciz(){
   localStorage.setItem("personel", JSON.stringify(personel));
   localStorage.setItem("subeler", JSON.stringify(subeler));
+  const filtre = document.getElementById("filtreSube")?.value || "";
+  const gosterilecek = filtre ? personel.filter(p => p.sube === filtre) : personel;
   const tb = document.querySelector("#tablo tbody");
   tb.innerHTML = "";
   const subeToplam = {};
-  personel.forEach(p => {
+  gosterilecek.forEach(p => {
     const net = netHesap(p);
     const odeme = p.odendi ? '<span class="badge yes">Ödendi</span>' : '<span class="badge no">Ödenmedi</span>';
     tb.innerHTML += `<tr>
@@ -273,6 +290,9 @@ function ciz(){
         <button class="danger" style="padding:6px 10px;font-size:12px" onclick="sil(${p.id})">Sil</button>
       </td>
     </tr>`;
+  });
+  personel.forEach(p => {
+    const net = netHesap(p);
     if(!subeToplam[p.sube]) subeToplam[p.sube] = {brut:0, net:0, adet:0};
     subeToplam[p.sube].brut += p.brut;
     subeToplam[p.sube].net += net;
@@ -367,8 +387,10 @@ function sil(id){
 }
 
 function excel(){
+  const filtre = document.getElementById("filtreSube")?.value || "";
+  const gosterilecek = filtre ? personel.filter(p => p.sube === filtre) : personel;
   let csv = "Ad,Pozisyon,Şube,Giriş,Brüt,Gün,Mesai,Prim,Avans,Kesinti,Net,Ödeme\n";
-  personel.forEach(p => {
+  gosterilecek.forEach(p => {
     csv += `"${p.ad}","${p.poz}","${p.sube}","${p.giris||""}",${p.brut},${p.gun},${p.mesai},${p.prim||0},${p.avans||0},${p.kesinti||0},${netHesap(p)},${p.odendi?"Ödendi":"Ödenmedi"}\n`;
   });
   indir(csv, "personel-listesi.csv");
@@ -399,6 +421,7 @@ function indir(csv, ad){
 }
 
 subeSelectDoldur();
+filtreSubeDoldur();
 subeListesiCiz();
 ciz();
 </script>
