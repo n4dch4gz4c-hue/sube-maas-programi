@@ -1,0 +1,29 @@
+{
+  "subeler": ["Merkez", "Kadıköy", "Bostancı"],
+  "personel": [
+    {
+      "id": 1,
+      "ad": "Ahmet Yılmaz",
+      "pozisyon": "Garson",
+      "sube": "Kadıköy",
+      "brut": 45000,
+      "iseGiris": "2024-03-15"
+    },
+    {
+      "id": 2,
+      "ad": "Ayşe Demir",
+      "pozisyon": "Aşçı",
+      "sube": "Merkez",
+      "brut": 55000,
+      "iseGiris": "2023-11-01"
+    },
+    {
+      "id": 3,
+      "ad": "Mehmet Kaya",
+      "pozisyon": "Kasiyer",
+      "sube": "Bostancı",
+      "brut": 42000,
+      "iseGiris": "2025-01-10"
+    }
+  ]
+}
