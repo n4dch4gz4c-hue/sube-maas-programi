@@ -7,109 +7,137 @@
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#f1f5f9;--muted:#94a3b8;--accent:#3b82f6;--accent-hover:#2563eb;--danger:#ef4444;--success:#10b981}
 *{box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:var(--text);min-height:100vh}
-.container{max-width:1200px;margin:0 auto;padding:24px}
-header{background:rgba(30,41,59,.8);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
-header h1{margin:0;font-size:28px;font-weight:700;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-header p{margin:6px 0 0;color:var(--muted);font-size:15px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.2)}
-.card h3{margin:0 0 16px;font-size:18px;font-weight:600;color:#e2e8f0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;background:#0f172a;color:var(--text);min-height:100vh;display:flex}
+.sidebar{width:240px;background:#1e293b;border-right:1px solid var(--border);padding:20px 0;position:fixed;height:100vh;overflow-y:auto}
+.sidebar h2{margin:0 20px 24px;font-size:18px;color:#60a5fa}
+.sidebar a{display:block;padding:12px 24px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:.2s}
+.sidebar a:hover,.sidebar a.active{background:#0f172a;color:#fff;border-left:3px solid var(--accent)}
+.main{margin-left:240px;flex:1;padding:24px}
+header{background:rgba(30,41,59,.8);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px}
+header h1{margin:0;font-size:26px;font-weight:700;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px}
+.card h3{margin:0 0 16px;font-size:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:13px;font-weight:600;color:var(--muted)}
-input,select{background:#0f172a;border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:10px;font-size:14px;width:100%;transition:.2s}
-input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.2)}
-button{background:var(--accent);color:#fff;border:0;padding:12px 18px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;transition:.2s}
-button:hover{background:var(--accent-hover);transform:translateY(-1px)}
+input,select{background:#0f172a;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px;font-size:14px;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--accent)}
+button{background:var(--accent);color:#fff;border:0;padding:12px 18px;border-radius:10px;cursor:pointer;font-weight:600}
+button:hover{background:var(--accent-hover)}
 button.danger{background:var(--danger)}
-button.danger:hover{background:#dc2626}
 button.secondary{background:#475569}
-button.secondary:hover{background:#334155}
 table{width:100%;border-collapse:collapse;font-size:14px}
-th{background:#0f172a;color:var(--muted);font-weight:600;text-transform:uppercase;font-size:12px;letter-spacing:.5px}
 th,td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--border)}
-tr:hover td{background:rgba(255,255,255,.03)}
-.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;background:#1e40af;color:#bfdbfe}
+th{background:#0f172a;color:var(--muted);font-size:12px;text-transform:uppercase}
+.badge{padding:4px 10px;border-radius:20px;font-size:12px;background:#1e40af;color:#bfdbfe}
 .sube-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.sube-item{background:#0f172a;border:1px solid var(--border);padding:8px 14px;border-radius:24px;font-size:13px;display:flex;align-items:center;gap:8px}
+.sube-item{background:#0f172a;border:1px solid var(--border);padding:6px 12px;border-radius:20px;font-size:13px;display:flex;align-items:center;gap:6px}
 .net{color:var(--success);font-weight:700}
-@media(max-width:700px){.container{padding:16px}.grid{grid-template-columns:1fr}header h1{font-size:22px}}
+.section{display:none}
+.section.active{display:block}
+@media(max-width:800px){.sidebar{width:60px}.sidebar h2,.sidebar a span{display:none}.main{margin-left:60px}}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="sidebar">
+<h2>Maaş</h2>
+<a href="#" class="active" onclick="goster('personel');return false"><span>Personel</span></a>
+<a href="#" onclick="goster('sube');return false"><span>Şube Yönetimi</span></a>
+<a href="#" onclick="goster('liste');return false"><span>Personel Listesi</span></a>
+<a href="#" onclick="goster('ozet');return false"><span>Şube Özeti</span></a>
+<a href="#" onclick="goster('bordro');return false"><span>Bordro Detay</span></a>
+</div>
+
+<div class="main">
 <header>
 <h1>Şube Personel Maaş Programı</h1>
-<p>Tüm şubeler • Yeni şube ekleme • Profesyonel maaş hesaplama</p>
 </header>
 
+<div id="personel" class="section active">
+<div class="card">
+<h3>Personel Ekle</h3>
+<div class="grid">
+<div class="field"><label>Ad Soyad</label><input id="ad"></div>
+<div class="field"><label>Pozisyon</label><input id="poz"></div>
+<div class="field"><label>Şube</label><select id="sube"></select></div>
+<div class="field"><label>İşe Giriş Tarihi</label><input id="giris" type="date"></div>
+<div class="field"><label>Brüt Maaş (₺)</label><input id="brut" type="number"></div>
+<div class="field"><label>Çalışılan Gün</label><input id="gun" type="number" value="30"></div>
+<div class="field"><label>Fazla Mesai (saat)</label><input id="mesai" type="number" value="0"></div>
+<div class="field"><label>Prim / Bahşiş (₺)</label><input id="prim" type="number" value="0"></div>
+<div class="field"><label>Avans (₺)</label><input id="avans" type="number" value="0"></div>
+<div class="field"><label>Ek Kesinti (₺)</label><input id="kesinti" type="number" value="0"></div>
+<div class="field"><label>Ücret Tipi</label><select id="tip"><option value="brut">Brüt</option><option value="net">Net</option></select></div>
+</div>
+<button onclick="ekle()" style="margin-top:16px">Kaydet</button>
+</div>
+</div>
+
+<div id="sube" class="section">
 <div class="card">
 <h3>Şube Yönetimi</h3>
-<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<div style="display:flex;gap:10px;align-items:center">
 <input id="yeniSube" placeholder="Yeni şube adı" style="max-width:240px">
 <button class="secondary" onclick="subeEkle()">+ Şube Ekle</button>
 </div>
 <div class="sube-list" id="subeListesi"></div>
 </div>
-
-<div class="card">
-<h3>Personel Ekle</h3>
-<div class="grid">
-<div class="field"><label>Ad Soyad</label><input id="ad" placeholder="Örn: Ahmet Yılmaz"></div>
-<div class="field"><label>Pozisyon</label><input id="poz" placeholder="Örn: Garson, Aşçı"></div>
-<div class="field"><label>Şube</label><select id="sube"></select></div>
-<div class="field"><label>Brüt Maaş (₺)</label><input id="brut" type="number" placeholder="45000"></div>
-<div class="field"><label>Çalışılan Gün</label><input id="gun" type="number" value="30" placeholder="30"></div>
-<div class="field"><label>Fazla Mesai (saat)</label><input id="mesai" type="number" value="0" placeholder="0"></div>
-<div class="field"><label>Prim / Bahşiş (₺)</label><input id="prim" type="number" value="0" placeholder="0"></div>
-<div class="field"><label>Avans (₺)</label><input id="avans" type="number" value="0" placeholder="0"></div>
-</div>
-<button onclick="ekle()" style="margin-top:16px">Kaydet</button>
 </div>
 
+<div id="liste" class="section">
 <div class="card">
 <h3>Personel Listesi</h3>
 <div style="overflow-x:auto">
 <table id="tablo">
-<thead>
-<tr>
-<th>Ad</th><th>Pozisyon</th><th>Şube</th><th>Brüt</th><th>Gün</th><th>Mesai</th><th>Prim</th><th>Avans</th><th>Net</th><th></th>
-</tr>
-</thead>
+<thead><tr><th>Ad</th><th>Pozisyon</th><th>Şube</th><th>Giriş</th><th>Brüt</th><th>Gün</th><th>Mesai</th><th>Prim</th><th>Avans</th><th>Kesinti</th><th>Net</th><th></th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
 </div>
+</div>
 
+<div id="ozet" class="section">
 <div class="card">
 <h3>Şube Özeti</h3>
-<div id="ozet"></div>
+<div id="ozetIcerik"></div>
+</div>
+</div>
+
+<div id="bordro" class="section">
+<div class="card">
+<h3>Bordro Detay (Örnek)</h3>
+<p style="color:var(--muted)">İleride tek personel seçip detaylı bordro görüntülenecek.</p>
+</div>
 </div>
 </div>
 
 <script>
 let subeler = JSON.parse(localStorage.getItem("subeler") || "null") || ["Bağdat Caddesi", "Kadıköy", "Çengelköy", "Talsim Pide", "Taksim Büfe"];
 let personel = JSON.parse(localStorage.getItem("personel") || "null") || [
-  {id:1, ad:"Ahmet Yılmaz", poz:"Garson", sube:"Kadıköy", brut:45000, gun:30, mesai:8, prim:2500, avans:0},
-  {id:2, ad:"Ayşe Demir", poz:"Aşçı", sube:"Bağdat Caddesi", brut:55000, gun:28, mesai:12, prim:1500, avans:3000},
-  {id:3, ad:"Mehmet Kaya", poz:"Kasiyer", sube:"Taksim Büfe", brut:42000, gun:30, mesai:0, prim:0, avans:0}
+  {id:1, ad:"Ahmet Yılmaz", poz:"Garson", sube:"Kadıköy", giris:"2024-03-15", brut:45000, gun:30, mesai:8, prim:2500, avans:0, kesinti:0, tip:"brut"},
+  {id:2, ad:"Ayşe Demir", poz:"Aşçı", sube:"Bağdat Caddesi", giris:"2023-11-01", brut:55000, gun:28, mesai:12, prim:1500, avans:3000, kesinti:500, tip:"brut"},
+  {id:3, ad:"Mehmet Kaya", poz:"Kasiyer", sube:"Taksim Büfe", giris:"2025-01-10", brut:42000, gun:30, mesai:0, prim:0, avans:0, kesinti:0, tip:"brut"}
 ];
 let nextId = personel.length ? Math.max(...personel.map(p=>p.id))+1 : 1;
 
+function goster(id){
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".sidebar a").forEach(a => a.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  event.target.classList.add("active");
+}
+
 function subeSelectDoldur(){
-  const sel = document.getElementById("sube");
-  sel.innerHTML = subeler.map(s => `<option>${s}</option>`).join("");
+  document.getElementById("sube").innerHTML = subeler.map(s => `<option>${s}</option>`).join("");
 }
 
 function subeListesiCiz(){
-  const el = document.getElementById("subeListesi");
-  el.innerHTML = subeler.map(s => `<div class="sube-item">${s} <button class="danger" style="padding:4px 8px;font-size:12px" onclick="subeSil('${s}')">×</button></div>`).join("");
+  document.getElementById("subeListesi").innerHTML = subeler.map(s => `<div class="sube-item">${s} <button class="danger" style="padding:2px 6px;font-size:11px" onclick="subeSil('${s}')">×</button></div>`).join("");
 }
 
 function subeEkle(){
   const ad = document.getElementById("yeniSube").value.trim();
-  if(!ad) return alert("Şube adı gir");
-  if(subeler.includes(ad)) return alert("Bu şube zaten var");
+  if(!ad || subeler.includes(ad)) return;
   subeler.push(ad);
   localStorage.setItem("subeler", JSON.stringify(subeler));
   document.getElementById("yeniSube").value = "";
@@ -119,8 +147,8 @@ function subeEkle(){
 }
 
 function subeSil(ad){
-  if(personel.some(p => p.sube === ad)) return alert("Bu şubede personel var, önce personeli taşı veya sil");
-  if(confirm(ad + " şubesini sil?")){
+  if(personel.some(p => p.sube === ad)) return alert("Personel var");
+  if(confirm(ad + " silinsin mi?")){
     subeler = subeler.filter(s => s !== ad);
     localStorage.setItem("subeler", JSON.stringify(subeler));
     subeSelectDoldur();
@@ -131,15 +159,15 @@ function subeSil(ad){
 
 function netHesap(p){
   const gunOran = Math.min(p.gun,30)/30;
-  const brut = p.brut * gunOran;
+  let brut = p.brut * gunOran;
   const mesaiUcret = (p.brut / 225) * p.mesai * 1.5;
-  const toplamHakedis = brut + mesaiUcret + (p.prim||0);
-  const sgk = toplamHakedis * 0.14;
-  const issizlik = toplamHakedis * 0.01;
-  const matrah = toplamHakedis - sgk - issizlik;
+  let toplam = brut + mesaiUcret + (p.prim||0);
+  const sgk = toplam * 0.14;
+  const issizlik = toplam * 0.01;
+  const matrah = toplam - sgk - issizlik;
   const gv = Math.max(0, (matrah - 28075.5) * 0.15);
-  const damga = toplamHakedis * 0.00759;
-  const net = toplamHakedis - sgk - issizlik - gv - damga - (p.avans||0);
+  const damga = toplam * 0.00759;
+  let net = toplam - sgk - issizlik - gv - damga - (p.avans||0) - (p.kesinti||0);
   return Math.round(net);
 }
 
@@ -151,14 +179,10 @@ function ciz(){
   personel.forEach(p => {
     const net = netHesap(p);
     tb.innerHTML += `<tr>
-      <td>${p.ad}</td>
-      <td>${p.poz}</td>
-      <td><span class="badge">${p.sube}</span></td>
-      <td>${p.brut.toLocaleString()} ₺</td>
-      <td>${p.gun}</td>
-      <td>${p.mesai} sa</td>
-      <td>${(p.prim||0).toLocaleString()} ₺</td>
-      <td>${(p.avans||0).toLocaleString()} ₺</td>
+      <td>${p.ad}</td><td>${p.poz}</td><td><span class="badge">${p.sube}</span></td>
+      <td>${p.giris || "-"}</td><td>${p.brut.toLocaleString()} ₺</td><td>${p.gun}</td>
+      <td>${p.mesai} sa</td><td>${(p.prim||0).toLocaleString()} ₺</td>
+      <td>${(p.avans||0).toLocaleString()} ₺</td><td>${(p.kesinti||0).toLocaleString()} ₺</td>
       <td class="net">${net.toLocaleString()} ₺</td>
       <td><button class="danger" style="padding:6px 10px;font-size:12px" onclick="sil(${p.id})">Sil</button></td>
     </tr>`;
@@ -173,26 +197,30 @@ function ciz(){
     oz += `<tr><td>${s}</td><td>${t.adet}</td><td>${t.brut.toLocaleString()} ₺</td><td class="net">${t.net.toLocaleString()} ₺</td></tr>`;
   });
   oz += "</tbody></table>";
-  document.getElementById("ozet").innerHTML = oz;
+  document.getElementById("ozetIcerik").innerHTML = oz;
 }
 
 function ekle(){
   const ad = document.getElementById("ad").value.trim();
   const poz = document.getElementById("poz").value.trim();
   const sube = document.getElementById("sube").value;
+  const giris = document.getElementById("giris").value;
   const brut = Number(document.getElementById("brut").value);
   const gun = Number(document.getElementById("gun").value) || 30;
   const mesai = Number(document.getElementById("mesai").value) || 0;
   const prim = Number(document.getElementById("prim").value) || 0;
   const avans = Number(document.getElementById("avans").value) || 0;
-  if(!ad || !brut) return alert("Ad ve brüt maaş zorunlu");
-  personel.push({id:nextId++, ad, poz, sube, brut, gun, mesai, prim, avans});
+  const kesinti = Number(document.getElementById("kesinti").value) || 0;
+  const tip = document.getElementById("tip").value;
+  if(!ad || !brut) return alert("Ad ve maaş zorunlu");
+  personel.push({id:nextId++, ad, poz, sube, giris, brut, gun, mesai, prim, avans, kesinti, tip});
   ciz();
-  ["ad","poz","brut"].forEach(id => document.getElementById(id).value="");
+  ["ad","poz","brut","giris"].forEach(id => document.getElementById(id).value="");
   document.getElementById("gun").value = 30;
   document.getElementById("mesai").value = 0;
   document.getElementById("prim").value = 0;
   document.getElementById("avans").value = 0;
+  document.getElementById("kesinti").value = 0;
 }
 
 function sil(id){
