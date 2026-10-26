@@ -484,6 +484,32 @@ function indir(csv, ad){
 let faturalar = JSON.parse(localStorage.getItem("faturalar") || "null") || [];
 let fNext = faturalar.length ? Math.max(...faturalar.map(f=>f.id||0))+1 : 1;
 
+// GitHub'dan otomatik faturaları çek ve birleştir
+async function faturaSenkron(){
+  try {
+    const r = await fetch("faturalar.json?t=" + Date.now());
+    if(!r.ok) return;
+    const remote = await r.json();
+    if(!Array.isArray(remote)) return;
+    let eklendi = 0;
+    remote.forEach(f => {
+      const key = (f.tarih||"") + "|" + (f.tutar||0) + "|" + (f.aciklama||"");
+      const varMi = faturalar.some(x => (x.tarih||"")+"|"+(x.tutar||0)+"|"+(x.aciklama||"") === key);
+      if(!varMi && f.tutar){
+        faturalar.push({id:fNext++, sube:f.sube||"Merkez", tarih:f.tarih||"", aciklama:f.aciklama||"", tutar:Number(f.tutar)||0, vade:f.vade||"", durum:f.durum||0, kaynak:"mail"});
+        eklendi++;
+      }
+    });
+    if(eklendi){
+      localStorage.setItem("faturalar", JSON.stringify(faturalar));
+      if(document.getElementById("fatura")?.classList.contains("active")) faturaCiz();
+      console.log(eklendi + " yeni fatura eklendi");
+    }
+  } catch(e){ console.log("fatura senkron hata", e); }
+}
+setTimeout(faturaSenkron, 500);
+setInterval(faturaSenkron, 60000);
+
 function faturaSelectDoldur(){
   const opts = subeler.map(s => `<option>${s}</option>`).join("");
   document.getElementById("fSube").innerHTML = opts;
