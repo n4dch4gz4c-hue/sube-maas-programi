@@ -69,6 +69,8 @@ th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase
 <a href="#" onclick="goster('liste');return false"><span>Personel Listesi</span></a>
 <a href="#" onclick="goster('ozet');return false"><span>Şube Özeti</span></a>
 <a href="#" onclick="goster('fatura');return false"><span>Faturalar</span></a>
+<a href="#" onclick="goster('tedarikci');return false"><span>Tedarikçiler</span></a>
+<a href="#" onclick="goster('bordro');return false"><span>Bordro Çıktı</span></a>
 </div>
 
 <div class="main">
@@ -175,7 +177,7 @@ th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase
 </div>
 <div style="overflow-x:auto">
 <table id="faturaTablo">
-<thead><tr><th>Tarih</th><th>Şube</th><th>Açıklama</th><th>Tutar</th><th>Vade</th><th>Durum</th><th></th></tr></thead>
+<thead><tr><th>Tarih</th><th>Şube</th><th>Açıklama</th><th>Tutar</th><th>Vade</th><th>Durum</th><th>Uyarı</th><th></th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
@@ -183,6 +185,33 @@ th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase
 </div>
 </div>
 
+
+<div id="tedarikci" class="section">
+<div class="card">
+<h3>Tedarikçi Ekle</h3>
+<div class="grid">
+<div class="field"><label>Ad</label><input id="tAd" placeholder="Tedarikçi adı"></div>
+<div class="field"><label>Telefon</label><input id="tTel"></div>
+<div class="field"><label>Not</label><input id="tNot"></div>
+</div>
+<button onclick="tedarikciKaydet()" style="margin-top:12px">Kaydet</button>
+</div>
+<div class="card">
+<h3>Tedarikçi Listesi</h3>
+<table id="tedarikciTablo"><thead><tr><th>Ad</th><th>Telefon</th><th>Not</th><th></th></tr></thead><tbody></tbody></table>
+</div>
+</div>
+
+<div id="bordro" class="section">
+<div class="card">
+<h3>Bordro Çıktısı</h3>
+<div class="filter-bar">
+<label>Şube:</label><select id="bFiltre" onchange="bordroCiz()"></select>
+<button class="success" onclick="bordroYazdir()">Yazdır / PDF</button>
+</div>
+<div id="bordroAlan"></div>
+</div>
+</div>
 <script>
 const varsayilanSubeler = ["Bağdat Caddesi", "Kadıköy", "Çengelköy", "Talsim Pide", "Taksim Büfe"];
 localStorage.removeItem("subeler"); // zorla temizle
@@ -645,6 +674,78 @@ setTimeout(function(){
   filtreSubeDoldur();
   subeListesiCiz();
 }, 300);
+
+let tedarikciler = JSON.parse(localStorage.getItem("tedarikciler") || "[]");
+
+function tedarikciKaydet(){
+  const ad = document.getElementById("tAd").value.trim();
+  if(!ad) return;
+  tedarikciler.push({ad, tel:document.getElementById("tTel").value, not:document.getElementById("tNot").value});
+  localStorage.setItem("tedarikciler", JSON.stringify(tedarikciler));
+  document.getElementById("tAd").value = document.getElementById("tTel").value = document.getElementById("tNot").value = "";
+  tedarikciCiz();
+}
+function tedarikciCiz(){
+  const tb = document.querySelector("#tedarikciTablo tbody");
+  if(!tb) return;
+  tb.innerHTML = "";
+  tedarikciler.forEach((t,i) => {
+    tb.innerHTML += `<tr><td>${t.ad}</td><td>${t.tel||""}</td><td>${t.not||""}</td><td><button class="danger" onclick="tedarikciSil(${i})">Sil</button></td></tr>`;
+  });
+}
+function tedarikciSil(i){
+  tedarikciler.splice(i,1);
+  localStorage.setItem("tedarikciler", JSON.stringify(tedarikciler));
+  tedarikciCiz();
+}
+
+function faturaCiz(){
+  const tb = document.querySelector("#faturaTablo tbody");
+  if(!tb) return;
+  tb.innerHTML = "";
+  const filtre = document.getElementById("fFiltre")?.value || "";
+  const bugun = new Date().toISOString().slice(0,10);
+  let list = JSON.parse(localStorage.getItem("faturalar") || "[]");
+  if(filtre) list = list.filter(f => f.sube === filtre);
+  list.forEach((f,i) => {
+    const gecikme = f.vade && f.vade < bugun && f.durum==0 ? '<span style="color:#dc2626;font-weight:600">Gecikmiş</span>' : '';
+    const durum = f.durum==1 ? '<span style="color:#059669">Ödendi</span>' : 'Ödenmedi';
+    tb.innerHTML += `<tr><td>${f.tarih||""}</td><td>${f.sube||""}</td><td>${f.aciklama||""}</td><td>${(f.tutar||0).toLocaleString("tr-TR")} ₺</td><td>${f.vade||""}</td><td>${durum}</td><td>${gecikme}</td><td><button class="danger" onclick="faturaSil(${i})">Sil</button></td></tr>`;
+  });
+}
+
+function bordroCiz(){
+  const alan = document.getElementById("bordroAlan");
+  if(!alan) return;
+  const filtre = document.getElementById("bFiltre")?.value || "";
+  let list = personel;
+  if(filtre) list = list.filter(p => p.sube === filtre);
+  let html = '<table><thead><tr><th>Ad</th><th>Pozisyon</th><th>Şube</th><th>Brüt</th><th>Mesai</th><th>Prim</th><th>Avans</th><th>Kesinti</th><th>Net</th></tr></thead><tbody>';
+  list.forEach(p => {
+    const net = netHesap(p);
+    html += `<tr><td>${p.ad}</td><td>${p.poz||""}</td><td>${p.sube}</td><td>${(p.brut||0).toLocaleString("tr-TR")}</td><td>${p.mesai||0}</td><td>${(p.prim||0).toLocaleString("tr-TR")}</td><td>${(p.avans||0).toLocaleString("tr-TR")}</td><td>${(p.kesinti||0).toLocaleString("tr-TR")}</td><td><b>${net.toLocaleString("tr-TR")} ₺</b></td></tr>`;
+  });
+  html += '</tbody></table>';
+  alan.innerHTML = html;
+}
+function bordroYazdir(){
+  const w = window.open("", "_blank");
+  w.document.write(`<html><head><title>Bordro</title><style>body{font-family:sans-serif}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px;text-align:left}</style></head><body><h2>Kızılkayalar Bordro</h2>${document.getElementById("bordroAlan").innerHTML}</body></html>`);
+  w.document.close();
+  w.print();
+}
+
+// enhance goster
+const _goster = goster;
+goster = function(id){
+  _goster(id);
+  if(id==="tedarikci") tedarikciCiz();
+  if(id==="bordro"){ filtreSubeDoldur(); document.getElementById("bFiltre").innerHTML = document.getElementById("filtre").innerHTML; bordroCiz(); }
+  if(id==="fatura") faturaCiz();
+};
+
+// init
+tedarikciCiz();
 </script>
 </body>
 </html>
