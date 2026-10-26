@@ -14,7 +14,9 @@ header h1{margin:0;font-size:28px;font-weight:700;background:linear-gradient(90d
 header p{margin:6px 0 0;color:var(--muted);font-size:15px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.2)}
 .card h3{margin:0 0 16px;font-size:18px;font-weight:600;color:#e2e8f0}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--muted)}
 input,select{background:#0f172a;border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:10px;font-size:14px;width:100%;transition:.2s}
 input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.2)}
 button{background:var(--accent);color:#fff;border:0;padding:12px 18px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;transition:.2s}
@@ -53,14 +55,14 @@ tr:hover td{background:rgba(255,255,255,.03)}
 <div class="card">
 <h3>Personel Ekle</h3>
 <div class="grid">
-<input id="ad" placeholder="Ad Soyad">
-<input id="poz" placeholder="Pozisyon">
-<select id="sube"></select>
-<input id="brut" type="number" placeholder="Brüt Maaş (₺)">
-<input id="gun" type="number" value="30" placeholder="Çalışılan Gün">
-<input id="mesai" type="number" value="0" placeholder="Fazla Mesai (saat)">
-<input id="prim" type="number" value="0" placeholder="Prim / Bahşiş (₺)">
-<input id="avans" type="number" value="0" placeholder="Avans (₺)">
+<div class="field"><label>Ad Soyad</label><input id="ad" placeholder="Örn: Ahmet Yılmaz"></div>
+<div class="field"><label>Pozisyon</label><input id="poz" placeholder="Örn: Garson, Aşçı"></div>
+<div class="field"><label>Şube</label><select id="sube"></select></div>
+<div class="field"><label>Brüt Maaş (₺)</label><input id="brut" type="number" placeholder="45000"></div>
+<div class="field"><label>Çalışılan Gün</label><input id="gun" type="number" value="30" placeholder="30"></div>
+<div class="field"><label>Fazla Mesai (saat)</label><input id="mesai" type="number" value="0" placeholder="0"></div>
+<div class="field"><label>Prim / Bahşiş (₺)</label><input id="prim" type="number" value="0" placeholder="0"></div>
+<div class="field"><label>Avans (₺)</label><input id="avans" type="number" value="0" placeholder="0"></div>
 </div>
 <button onclick="ekle()" style="margin-top:16px">Kaydet</button>
 </div>
