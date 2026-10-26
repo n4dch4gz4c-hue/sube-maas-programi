@@ -15,27 +15,38 @@ button{background:#3b82f6;color:#fff;border:0;padding:10px 16px;border-radius:8p
 button:hover{background:#2563eb}
 button.danger{background:#ef4444}
 button.danger:hover{background:#dc2626}
+button.secondary{background:#64748b}
+button.secondary:hover{background:#475569}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #e2e8f0}
 th{background:#f8fafc;font-weight:600}
 .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;background:#e0f2fe;color:#0369a1}
+.sube-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.sube-item{background:#f1f5f9;padding:6px 10px;border-radius:20px;font-size:13px;display:flex;align-items:center;gap:6px}
 @media(max-width:700px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
 <h1>Şube Personel Maaş Programı</h1>
-<p style="margin:6px 0 0;opacity:.85">Profesyonel hesap: çalışılan gün, fazla mesai, prim/bahşiş, avans, net maaş</p>
+<p style="margin:6px 0 0;opacity:.85">Tüm şubeler + yeni şube ekleme + profesyonel maaş hesap</p>
 </header>
 
 <div class="card">
-<h3>Personel Ekle / Güncelle</h3>
+<h3>Şube Yönetimi</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+<input id="yeniSube" placeholder="Yeni şube adı" style="max-width:220px">
+<button class="secondary" onclick="subeEkle()">Şube Ekle</button>
+</div>
+<div class="sube-list" id="subeListesi"></div>
+</div>
+
+<div class="card">
+<h3>Personel Ekle</h3>
 <div class="grid">
 <input id="ad" placeholder="Ad Soyad">
 <input id="poz" placeholder="Pozisyon">
-<select id="sube">
-<option>Merkez</option><option>Kadıköy</option><option>Bostancı</option><option>Şişli</option><option>Ataşehir</option>
-</select>
+<select id="sube"></select>
 <input id="brut" type="number" placeholder="Brüt Maaş (₺)">
 <input id="gun" type="number" value="30" placeholder="Çalışılan Gün">
 <input id="mesai" type="number" value="0" placeholder="Fazla Mesai Saat">
@@ -65,6 +76,7 @@ th{background:#f8fafc;font-weight:600}
 </div>
 
 <script>
+let subeler = JSON.parse(localStorage.getItem("subeler") || "null") || ["Merkez", "Kadıköy", "Bostancı", "Şişli", "Ataşehir"];
 let personel = JSON.parse(localStorage.getItem("personel") || "null") || [
   {id:1, ad:"Ahmet Yılmaz", poz:"Garson", sube:"Kadıköy", brut:45000, gun:30, mesai:8, prim:2500, avans:0},
   {id:2, ad:"Ayşe Demir", poz:"Aşçı", sube:"Merkez", brut:55000, gun:28, mesai:12, prim:1500, avans:3000},
@@ -72,10 +84,43 @@ let personel = JSON.parse(localStorage.getItem("personel") || "null") || [
 ];
 let nextId = personel.length ? Math.max(...personel.map(p=>p.id))+1 : 1;
 
+function subeSelectDoldur(){
+  const sel = document.getElementById("sube");
+  sel.innerHTML = subeler.map(s => `<option>${s}</option>`).join("");
+}
+
+function subeListesiCiz(){
+  const el = document.getElementById("subeListesi");
+  el.innerHTML = subeler.map(s => `<div class="sube-item">${s} <button class="danger" style="padding:2px 6px;font-size:11px" onclick="subeSil('${s}')">×</button></div>`).join("");
+}
+
+function subeEkle(){
+  const ad = document.getElementById("yeniSube").value.trim();
+  if(!ad) return alert("Şube adı gir");
+  if(subeler.includes(ad)) return alert("Bu şube zaten var");
+  subeler.push(ad);
+  localStorage.setItem("subeler", JSON.stringify(subeler));
+  document.getElementById("yeniSube").value = "";
+  subeSelectDoldur();
+  subeListesiCiz();
+  ciz();
+}
+
+function subeSil(ad){
+  if(personel.some(p => p.sube === ad)) return alert("Bu şubede personel var, önce personeli taşı veya sil");
+  if(confirm(ad + " şubesini sil?")){
+    subeler = subeler.filter(s => s !== ad);
+    localStorage.setItem("subeler", JSON.stringify(subeler));
+    subeSelectDoldur();
+    subeListesiCiz();
+    ciz();
+  }
+}
+
 function netHesap(p){
   const gunOran = Math.min(p.gun,30)/30;
   const brut = p.brut * gunOran;
-  const mesaiUcret = (p.brut / 225) * p.mesai * 1.5; // saatlik * 1.5
+  const mesaiUcret = (p.brut / 225) * p.mesai * 1.5;
   const toplamHakedis = brut + mesaiUcret + (p.prim||0);
   const sgk = toplamHakedis * 0.14;
   const issizlik = toplamHakedis * 0.01;
@@ -111,10 +156,10 @@ function ciz(){
     subeToplam[p.sube].adet++;
   });
   let oz = "<table><thead><tr><th>Şube</th><th>Kişi</th><th>Toplam Brüt</th><th>Toplam Net</th></tr></thead><tbody>";
-  for(const s in subeToplam){
-    const t = subeToplam[s];
+  subeler.forEach(s => {
+    const t = subeToplam[s] || {brut:0, net:0, adet:0};
     oz += `<tr><td>${s}</td><td>${t.adet}</td><td>${t.brut.toLocaleString()} ₺</td><td><strong>${t.net.toLocaleString()} ₺</strong></td></tr>`;
-  }
+  });
   oz += "</tbody></table>";
   document.getElementById("ozet").innerHTML = oz;
 }
@@ -145,6 +190,8 @@ function sil(id){
   }
 }
 
+subeSelectDoldur();
+subeListesiCiz();
 ciz();
 </script>
 </body>
