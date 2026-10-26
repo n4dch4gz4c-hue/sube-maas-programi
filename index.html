@@ -76,11 +76,11 @@ th{background:#f8fafc;font-weight:600}
 </div>
 
 <script>
-let subeler = JSON.parse(localStorage.getItem("subeler") || "null") || ["Merkez", "Kadıköy", "Bostancı", "Şişli", "Ataşehir"];
+let subeler = JSON.parse(localStorage.getItem("subeler") || "null") || ["Bağdat Caddesi", "Kadıköy", "Çengelköy", "Talsim Pide", "Taksim Büfe"];
 let personel = JSON.parse(localStorage.getItem("personel") || "null") || [
   {id:1, ad:"Ahmet Yılmaz", poz:"Garson", sube:"Kadıköy", brut:45000, gun:30, mesai:8, prim:2500, avans:0},
-  {id:2, ad:"Ayşe Demir", poz:"Aşçı", sube:"Merkez", brut:55000, gun:28, mesai:12, prim:1500, avans:3000},
-  {id:3, ad:"Mehmet Kaya", poz:"Kasiyer", sube:"Bostancı", brut:42000, gun:30, mesai:0, prim:0, avans:0}
+  {id:2, ad:"Ayşe Demir", poz:"Aşçı", sube:"Bağdat Caddesi", brut:55000, gun:28, mesai:12, prim:1500, avans:3000},
+  {id:3, ad:"Mehmet Kaya", poz:"Kasiyer", sube:"Taksim Büfe", brut:42000, gun:30, mesai:0, prim:0, avans:0}
 ];
 let nextId = personel.length ? Math.max(...personel.map(p=>p.id))+1 : 1;
 
